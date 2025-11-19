@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจัดตารางเรียน (Storage & Custom)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <script src="course_data.js"></script>
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <div class="top-header">
+        <div style="display:flex; align-items:center; gap:15px;">
+            <h1>✨ ระบบจัดตารางเรียน</h1>
+            <span id="total-credits-badge"
+                style="background:#e0f2fe; color:#0284c7; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:700;">
+                0 หน่วยกิต
+            </span>
+        </div>
+        <div class="header-actions">
+            <button onclick="openAddCustomModal()" class="btn-action btn-success">
+                <span>+</span> เพิ่มวิชาเอง
+            </button>
+            <button onclick="clearAllCourses()" class="btn-action btn-danger">
+                <span>🗑️</span> ล้างทั้งหมด
+            </button>
+        </div>
+    </div>
+
+    <!-- Layout หลัก -->
+    <div class="app-container">
+
+        <!-- เมนูซ้าย -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="mb-4">
+                    <label
+                        class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">เลือกหลักสูตร</label>
+                    <select id="curriculum-select" onchange="changeCurriculum()"
+                        class="w-full p-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                        <option value="CS">วท.บ. วิทยาการคอมพิวเตอร์ (CS)</option>
+                        <option value="IT">วท.บ. เทคโนโลยีสารสนเทศ (IT)</option>
+                    </select>
+                </div>
+
+                <h3 class="text-sm font-bold text-gray-700 mb-2">📚 รายวิชาที่เปิดสอน</h3>
+                <input type="text" id="course-search" class="search-box" placeholder="🔍 ค้นหารหัส หรือ ชื่อวิชา..."
+                    onkeyup="filterCourses()">
+            </div>
+            <div id="course-menu" class="course-list custom-scrollbar">
+                <!-- รายวิชาจะถูกสร้างที่นี่ -->
+            </div>
+        </aside>
+
+        <!-- ตารางขวา -->
+        <main class="timetable-area">
+            <div class="table-wrapper custom-scrollbar">
+                <table>
+                    <thead>
+                        <tr class="header-row">
+                            <th class="time-col-header">เวลา</th>
+                            <th>8:00</th>
+                            <th>9:00</th>
+                            <th>10:00</th>
+                            <th>11:00</th>
+                            <th>12:00</th>
+                            <th>13:00</th>
+                            <th>14:00</th>
+                            <th>15:00</th>
+                            <th>16:00</th>
+                            <th>17:00</th>
+                            <th>18:00</th>
+                        </tr>
+                    </thead>
+                    <tbody id="timetable-body">
+                        <!-- ตารางจะถูกสร้างที่นี่ -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal 1: ยืนยันการเพิ่มวิชา (จากการลาก) -->
+    <div id="confirm-modal"
+        class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center p-4 modal-backdrop">
+        <div class="modal-content">
+            <h3>ลงทะเบียนรายวิชา</h3>
+            <div id="confirm-msg" class="course-preview"></div>
+
+            <div class="form-group">
+                <label>จำนวนชั่วโมงเรียน</label>
+                <select id="confirm-duration">
+                    <option value="1">1 ชม.</option>
+                    <option value="2">2 ชม.</option>
+                    <option value="3" selected>3 ชม.</option>
+                    <option value="4">4 ชม.</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>เลือกสี (Theme)</label>
+                <div class="color-picker-wrapper">
+                    <input type="color" id="confirm-color" value="#dae8fc">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button onclick="closeModal('confirm-modal')" class="btn-cancel">ยกเลิก</button>
+                <button onclick="confirmAddCourse()" class="btn-confirm">ยืนยัน</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: เพิ่มวิชาเอง (Manual Add) -->
+    <div id="add-custom-modal"
+        class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center p-4 modal-backdrop">
+        <div class="modal-content">
+            <h3>➕ เพิ่มรายวิชาใหม่</h3>
+
+            <div class="p-4 space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">รหัสวิชา</label>
+                    <input type="text" id="custom-code"
+                        class="w-full p-2 border rounded outline-none focus:border-blue-500" placeholder="เช่น 001234">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">ชื่อวิชา (ไทย/อังกฤษ)</label>
+                    <input type="text" id="custom-name"
+                        class="w-full p-2 border rounded outline-none focus:border-blue-500" placeholder="ชื่อวิชา...">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">วันเรียน</label>
+                        <select id="custom-day" class="w-full p-2 border rounded outline-none">
+                            <option value="Monday">จันทร์</option>
+                            <option value="Tuesday">อังคาร</option>
+                            <option value="Wednesday">พุธ</option>
+                            <option value="Thursday">พฤหัสบดี</option>
+                            <option value="Friday">ศุกร์</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">เวลาเริ่ม</label>
+                        <select id="custom-start" class="w-full p-2 border rounded outline-none">
+                            <option value="8">8:00</option>
+                            <option value="9">9:00</option>
+                            <option value="10">10:00</option>
+                            <option value="11">11:00</option>
+                            <option value="12">12:00</option>
+                            <option value="13">13:00</option>
+                            <option value="14">14:00</option>
+                            <option value="15">15:00</option>
+                            <option value="16">16:00</option>
+                            <option value="17">17:00</option>
+                            <option value="18">18:00</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">จำนวนชั่วโมง</label>
+                        <select id="custom-duration" class="w-full p-2 border rounded outline-none">
+                            <option value="1">1 ชม.</option>
+                            <option value="2">2 ชม.</option>
+                            <option value="3" selected>3 ชม.</option>
+                            <option value="4">4 ชม.</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">สีวิชา</label>
+                        <div class="h-[38px] w-full border rounded overflow-hidden">
+                            <input type="color" id="custom-color" value="#d5e8d4"
+                                class="w-full h-full cursor-pointer p-0 border-none">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button onclick="closeModal('add-custom-modal')" class="btn-cancel">ยกเลิก</button>
+                <button onclick="confirmAddCustomCourse()"
+                    class="btn-confirm bg-green-600 hover:bg-green-700">บันทึก</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
