@@ -1,4 +1,93 @@
+// ---------------------------------------------------------
+// ส่วนที่ 1: ข้อมูลวิชาเลือกเสรี (เตรียมไว้ใช้)
+// ---------------------------------------------------------
+const freeElectivesObject = {
+    category: "รายวิชาเลือกเสรี (Free Electives) - ภาคปลาย ปี 68",
+    groups: [
+        {
+            name: "รายวิชาทั้งหมด (เครื่องหมาย * คือจำกัดคณะ/สาขา)",
+            courses: [
+               // --- คณะเกษตรศาสตร์ฯ ---
+                { code: "123335-1", nameEn: "*Aquaponics Technology", nameTh: "*เทคโนโลยีอควาโปนิกส์ (เกษตรฯ)", credits: "3" },
+                { code: "107335-2", nameEn: "Rice Production Technology", nameTh: "เทคโนโลยีการผลิตข้าว", credits: "3" },
+                { code: "107336-2", nameEn: "Field Crop Breeding", nameTh: "เทคนิคการปรับปรุงพันธุ์พืชไร่", credits: "3" },
+                { code: "107359-1", nameEn: "Topics in Agricultural Sci", nameTh: "หัวข้อคัดสรรวิทย์เกษตร", credits: "3" },
+
+                // --- คณะเภสัชศาสตร์ ---
+                { code: "156442-2", nameEn: "*Tobacco and Health", nameTh: "*ยาสูบและสุขภาพ (ทันตะ/เภสัช)", credits: "3" },
+                { code: "190407-1", nameEn: "*Yoga for Health and Beauty", nameTh: "*โยคะเพื่อสุขภาพ (เภสัช)", credits: "3" },
+
+                // --- คณะศึกษาศาสตร์ ---
+                { code: "353432-3", nameEn: "*Student Dev Activities", nameTh: "*การจัดการกิจกรรมนิสิต (ศึกษาฯ)", credits: "3" },
+
+                // --- คณะวิทยาศาสตร์การแพทย์ ---
+                { code: "411354-1", nameEn: "*Biology of Ageing", nameTh: "*ชีววิทยาของความชรา (วิทย์แพทย์)", credits: "3" },
+
+                // --- คณะสาธารณสุขศาสตร์ ---
+                { code: "551231-1", nameEn: "Cigarettes, Alcohol & Health", nameTh: "บุหรี่ สุรา และปัญหาสุขภาพ", credits: "3" },
+                { code: "551425-2", nameEn: "Sociology in Public Health", nameTh: "สังคมวิทยาทางสาธารณสุข", credits: "3" },
+                { code: "551452-2", nameEn: "Aging Health Care", nameTh: "การดูแลสุขภาพผู้สูงอายุ", credits: "3" },
+                { code: "552391-1", nameEn: "Ancient Medical Scriptures", nameTh: "คัมภีร์เวชกรรมแผนโบราณ", credits: "3" },
+                { code: "552392-1", nameEn: "Holistic Health Care", nameTh: "สุขภาพองค์รวมและการแพทย์ทางเลือก", credits: "3" },
+
+                // --- คณะสถาปัตยกรรมศาสตร์ฯ ---
+                { code: "701468-3", nameEn: "*Creative Thinking in Design", nameTh: "*คิดสร้างสรรค์ออกแบบ (สถาปัตย์)", credits: "3" },
+                { code: "703112-4", nameEn: "Fundamental Art and Design", nameTh: "พื้นฐานศิลปะและการออกแบบ", credits: "3" },
+                { code: "703334-3", nameEn: "3D Model Printing", nameTh: "การพิมพ์โมเดล 3 มิติ", credits: "3" },
+                { code: "704312-1", nameEn: "Inclusive Design", nameTh: "การออกแบบเพื่อทุกคน", credits: "3" },
+                { code: "704314-2", nameEn: "Fundamental Design", nameTh: "พื้นฐานการออกแบบ", credits: "3" },
+                { code: "704335-5", nameEn: "Ceramic Design", nameTh: "การออกแบบเครื่องเคลือบดินเผา", credits: "3" },
+                { code: "704366-1", nameEn: "Print Design", nameTh: "การออกแบบสิ่งพิมพ์", credits: "3" },
+
+                // --- คณะมนุษยศาสตร์ ---
+                { code: "202316-3", nameEn: "*Weapons Dance", nameTh: "*ระบำอาวุธ (นาฏศิลป์)", credits: "3" },
+                { code: "202323-4", nameEn: "*Eastern Performing Arts", nameTh: "*ศิลปะการแสดงตะวันออก (นาฏศิลป์)", credits: "3" },
+                { code: "207281-3", nameEn: "Japanese Skills 1", nameTh: "ทักษะภาษาญี่ปุ่น 1", credits: "3" },
+                { code: "208001-3", nameEn: "Thai Writing for Comm", nameTh: "การเขียนภาษาไทยเพื่อการสื่อสาร", credits: "3" },
+                { code: "208251-3", nameEn: "Academic Reading", nameTh: "การอ่านเชิงวิชาการ", credits: "3" },
+                { code: "209101-3", nameEn: "Linguistics & Teaching", nameTh: "ภาษาศาสตร์และการสอนภาษา", credits: "3" },
+                { code: "209104-1", nameEn: "Linguistics Online Platform", nameTh: "ภาษาศาสตร์สำหรับแพลตฟอร์มออนไลน์", credits: "3" },
+                { code: "218111-2", nameEn: "Basic Burmese I", nameTh: "ภาษาพม่าเบื้องต้น 1", credits: "3" },
+                { code: "221081-1", nameEn: "Basic Korean Language I", nameTh: "ภาษาเกาหลีเบื้องต้น 1", credits: "3" },
+                { code: "776301-1", nameEn: "Local Folklore", nameTh: "คติชาวบ้าน", credits: "3" },
+                { code: "776303-1", nameEn: "Folklore in Digital Media", nameTh: "คติชนในสื่อดิจิทัล", credits: "3" },
+                { code: "776311-1", nameEn: "World Mythology", nameTh: "ตำนานปรัมปราโลก", credits: "3" },
+                { code: "776371-2", nameEn: "Folklore and Beauty", nameTh: "คติชนกับความงาม", credits: "3" },
+                { code: "776381-1", nameEn: "Dhamma Lanna Script", nameTh: "อักษรธรรมล้านนา", credits: "3" },
+                { code: "776382-1", nameEn: "Khom-Thai Script", nameTh: "อักษรขอมไทย", credits: "3" },
+                { code: "782112-2", nameEn: "Lao Language", nameTh: "ภาษาลาวเพื่อการสื่อสาร", credits: "3" },
+                { code: "784102-2", nameEn: "Eastern Philosophy", nameTh: "ปรัชญาตะวันออก", credits: "3" },
+                { code: "784106-2", nameEn: "Ethics", nameTh: "จริยศาสตร์", credits: "3" },
+                { code: "784201-1", nameEn: "Philosophy & Religion", nameTh: "ปรัชญาและศาสนาเพื่อพัฒนาตนเอง", credits: "3" },
+
+                // --- คณะสังคมศาสตร์ ---
+                { code: "830320-1", nameEn: "Econ & Social Policy", nameTh: "นโยบายเศรษฐกิจและสังคมฯ", credits: "3" },
+                { code: "830324-3", nameEn: "Local Admin Thailand", nameTh: "การปกครองท้องถิ่นไทย", credits: "3" },
+                { code: "830331-4", nameEn: "Food Studies", nameTh: "อาหารศึกษากับการพัฒนาสังคม", credits: "3" },
+                { code: "830333-4", nameEn: "Strategic Giving", nameTh: "การให้เชิงกลยุทธ์และการกุศล", credits: "3" },
+                { code: "830341-4", nameEn: "Health Sociology", nameTh: "สังคมวิทยาต่อนุขภาพ", credits: "3" },
+                { code: "830342-3", nameEn: "Population & Reprod Health", nameTh: "ประชากรและอนามัยเจริญพันธุ์", credits: "3" },
+                { code: "830343-4", nameEn: "Population & Aging", nameTh: "ประชากรและสังคมสูงวัย", credits: "3" },
+                { code: "830356-3", nameEn: "Meditation for Life", nameTh: "สมาธิเพื่อพัฒนาชีวิต", credits: "3" },
+                { code: "830454-1", nameEn: "Religions & Ethics", nameTh: "ศาสนาและจริยธรรมฯ", credits: "3" },
+                { code: "830456-1", nameEn: "Human Development", nameTh: "มนุษย์กับการพัฒนา", credits: "3" },
+                { code: "835325-2", nameEn: "Film Analysis (Psych)", nameTh: "วิเคราะห์ภาพยนตร์มุมมองจิตวิทยา", credits: "3" },
+                { code: "837307-1", nameEn: "Baby Unicorn Start-Up", nameTh: "ธุรกิจสตาร์ทอัพ", credits: "3" },
+                { code: "837325-1", nameEn: "ASEAN Cultural Studies", nameTh: "อาเซียนศึกษาทางวัฒนธรรม", credits: "3" },
+                { code: "837327-1", nameEn: "Global Queer Cinema", nameTh: "ภาพยนตร์เควียร์โลก", credits: "3" }
+            ]
+        }
+    ]
+};
+
+// ---------------------------------------------------------
+// ส่วนที่ 2: รวมข้อมูลทั้งหมดลง allCurricula
+// ---------------------------------------------------------
 const allCurricula = {
+    // 1. หมวด FREE (วิชาเลือกเสรี) - แสดงเป็นหมวดหลัก
+    "FREE": [ freeElectivesObject ], 
+
+    // 2. หมวด CS
     "CS": [
         {
             category: "1. หมวดวิชาศึกษาทั่วไป (General Education)",
@@ -88,6 +177,8 @@ const allCurricula = {
             ]
         }
     ],
+
+    // 3. หมวด IT
     "IT": [
         {
             category: "1. หมวดวิชาศึกษาทั่วไป (General Education)",

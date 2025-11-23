@@ -4,11 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบจัดตารางเรียน (Storage & Custom)</title>
+    <title>ระบบจัดตารางเรียน</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+
+    <!-- เพิ่ม html2canvas สำหรับจับภาพหน้าจอ -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
     <script src="course_data.js"></script>
     <script src="script.js" defer></script>
@@ -25,12 +28,34 @@
                 0 หน่วยกิต
             </span>
         </div>
-        <div class="header-actions">
-            <button onclick="openAddCustomModal()" class="btn-action btn-success">
-                <span>+</span> เพิ่มวิชาเอง
+        <div class="header-actions" style="display:flex; align-items:center; gap:10px;">
+            
+            <!-- Plan Switcher -->
+            <div class="flex bg-slate-200 p-1 rounded-lg mr-2">
+                <button id="btn-plan-A" onclick="switchPlan(' A ')" 
+                    class="px-4 py-1.5 rounded-md text-xs font-bold shadow bg-white text-blue-600 transition-all">
+                    Plan A
+                </button>
+                <button id="btn-plan-B" onclick="switchPlan(' B ')" 
+                    class="px-4 py-1.5 rounded-md text-xs font-bold text-gray-500 hover:bg-white/50 transition-all">
+                    Plan B
+                </button>
+            </div>
+
+            <!-- ปุ่มเดิม -->
+            <button onclick="downloadScheduleImage()" class="btn-action" style="background-color:#3b82f6; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px; display:flex; align-items:center; gap:5px;">
+                <span>📷</span> Download Image
             </button>
-            <button onclick="clearAllCourses()" class="btn-action btn-danger">
-                <span>🗑️</span> ล้างทั้งหมด
+
+            <button onclick="openSearchModal()" class="btn-action" style="background-color:#F26522; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px; display:flex; align-items:center; gap:5px;">
+                <span>🔍</span> Reg Search
+            </button>
+            
+            <button onclick="openAddCustomModal()" class="btn-action btn-success" style="background-color:#10b981; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px;">
+                <span>+</span> วิชารายวิชา
+            </button>
+            <button onclick="clearAllCourses()" class="btn-action btn-danger" style="background-color:#ef4444; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px;">
+                <span>🗑️</span> ล้าง
             </button>
         </div>
     </div>
@@ -48,6 +73,7 @@
                         class="w-full p-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white focus:ring-2 focus:ring-blue-500 outline-none">
                         <option value="CS">วท.บ. วิทยาการคอมพิวเตอร์ (CS)</option>
                         <option value="IT">วท.บ. เทคโนโลยีสารสนเทศ (IT)</option>
+                        <option value="FREE">หมวดวิชาเลือกเสรี (รวมทุกคณะ)</option>
                     </select>
                 </div>
 
@@ -61,7 +87,9 @@
         </aside>
 
         <!-- ตารางขวา -->
-        <main class="timetable-area">
+        <main class="timetable-area custom-scrollbar" id="capture-area" style="overflow-y: auto;"> 
+            
+            <!-- ตารางเรียน -->
             <div class="table-wrapper custom-scrollbar">
                 <table>
                     <thead>
@@ -85,10 +113,41 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- NEW: ตารางสอบ (Exam Schedule) -->
+            <!-- ปรับความกว้างคอลัมน์สอบเป็น w-80 (320px) เพื่อให้กว้างขึ้น -->
+            <div id="exam-schedule-section" class="mt-8 pt-6 border-t border-dashed border-gray-300 hidden">
+                <h3 class="text-lg font-bold text-gray-700 mb-4 flex items-center gap-2">
+                    📅 สรุปตารางสอบ (Exam Schedule)
+                    <span class="text-[10px] font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded-full border">แก้ไขวันที่ได้</span>
+                </h3>
+                <div class="overflow-hidden rounded-lg border border-gray-200 shadow-sm">
+                    <table class="w-full text-sm text-left text-gray-600">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b">
+                            <tr>
+                                <th scope="col" class="px-4 py-3 w-24">รหัสวิชา</th>
+                                <th scope="col" class="px-4 py-3">ชื่อวิชา</th>
+                                <!-- ปรับ w-48 เป็น w-80 (กว้างขึ้น) -->
+                                <th scope="col" class="px-4 py-3 w-80 bg-orange-50 text-orange-800 border-l border-orange-100">
+                                    สอบกลางภาค (Midterm)
+                                </th>
+                                <!-- ปรับ w-48 เป็น w-80 (กว้างขึ้น) -->
+                                <th scope="col" class="px-4 py-3 w-80 bg-blue-50 text-blue-800 border-l border-blue-100">
+                                    สอบปลายภาค (Final)
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="exam-table-body" class="bg-white divide-y divide-gray-100">
+                            <!-- แถวข้อมูลจะถูกสร้างที่นี่ -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
         </main>
     </div>
 
-    <!-- Modal 1: ยืนยันการเพิ่มวิชา (จากการลาก) -->
+    <!-- Modal 1: ยืนยันการเพิ่มวิชา -->
     <div id="confirm-modal"
         class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center p-4 modal-backdrop">
         <div class="modal-content">
@@ -99,8 +158,8 @@
                 <label>จำนวนชั่วโมงเรียน</label>
                 <select id="confirm-duration">
                     <option value="1">1 ชม.</option>
-                    <option value="2">2 ชม.</option>
-                    <option value="3" selected>3 ชม.</option>
+                    <option value="3" selected>2 ชม.</option>
+                    <option value="2">3 ชม.</option>
                     <option value="4">4 ชม.</option>
                 </select>
             </div>
@@ -117,7 +176,7 @@
         </div>
     </div>
 
-    <!-- Modal 2: เพิ่มวิชาเอง (Manual Add) -->
+    <!-- Modal 2: เพิ่มวิชาเอง -->
     <div id="add-custom-modal"
         class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center p-4 modal-backdrop">
         <div class="modal-content">
@@ -167,8 +226,8 @@
                         <label class="block text-xs font-bold text-gray-500 mb-1">จำนวนชั่วโมง</label>
                         <select id="custom-duration" class="w-full p-2 border rounded outline-none">
                             <option value="1">1 ชม.</option>
-                            <option value="2">2 ชม.</option>
-                            <option value="3" selected>3 ชม.</option>
+                            <option value="3" selected>2 ชม.</option>
+                            <option value="2">3 ชม.</option>
                             <option value="4">4 ชม.</option>
                         </select>
                     </div>
@@ -186,6 +245,50 @@
                 <button onclick="closeModal('add-custom-modal')" class="btn-cancel">ยกเลิก</button>
                 <button onclick="confirmAddCustomCourse()"
                     class="btn-confirm bg-green-600 hover:bg-green-700">บันทึก</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 3: ค้นหาใน Reg -->
+    <div id="search-modal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center p-4 modal-backdrop">
+        <div class="modal-content" style="width: 400px;">
+            <div style="background: linear-gradient(135deg, #F26522 0%, #d3541c 100%); padding: 20px; text-align: center; color: white;">
+                <div style="font-size: 40px; margin-bottom: 10px;">🔍</div>
+                <h3 style="background:none; border:none; color:white; padding:0; margin-bottom:5px;">เช็คตารางจาก Reg</h3>
+                <p style="font-size: 12px; opacity: 0.9;">ข้อมูลห้องเรียนและวันสอบ (Real-time)</p>
+            </div>
+
+            <div class="p-5 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">คำค้นหา (รหัสวิชา / ชื่อวิชา)</label>
+                    <input type="text" id="reg-search-query" 
+                        class="w-full p-3 border-2 border-orange-100 rounded-lg outline-none focus:border-orange-500 text-lg" 
+                        placeholder="เช่น 204101"
+                        onkeypress="handleSearchEnter(event)">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">ปีการศึกษา</label>
+                        <select id="reg-search-year" class="w-full p-2 border rounded outline-none bg-gray-50">
+                            <option value="2568">2568</option>
+                            <option value="2567" selected>2567</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">เทอม</label>
+                        <select id="reg-search-sem" class="w-full p-2 border rounded outline-none bg-gray-50">
+                            <option value="1">1 (ต้น)</option>
+                            <option value="2" selected>2 (ปลาย)</option>
+                            <option value="3">3 (ร้อน)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button onclick="closeModal('search-modal')" class="btn-cancel">ปิด</button>
+                <button onclick="performRegSearch()" class="btn-confirm" style="background-color: #F26522;">ค้นหาทันที ➜</button>
             </div>
         </div>
     </div>
