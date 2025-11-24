@@ -338,7 +338,7 @@ function loadCourses() {
 }
 
 // -----------------------------------------------------------------
-// NEW: Exam Schedule Logic
+// UPDATED: Exam Schedule Logic (Fix Duplicates)
 // -----------------------------------------------------------------
 function renderExamSchedule(courses) {
     const section = document.getElementById('exam-schedule-section');
@@ -353,16 +353,29 @@ function renderExamSchedule(courses) {
     section.classList.remove('hidden');
     tbody.innerHTML = '';
 
-    // เรียงตามรหัสวิชา
+    // 1. เรียงข้อมูลตามรหัส
     const sortedCourses = [...courses].sort((a, b) => a.code.localeCompare(b.code));
 
+    // 2. กรองให้เหลือ Unique (ใช้ Set ช่วยจำ code ที่เคยเจอแล้ว)
+    const uniqueCourses = [];
+    const seenCodes = new Set();
+
     sortedCourses.forEach(course => {
+        if (!seenCodes.has(course.code)) {
+            seenCodes.add(course.code);
+            uniqueCourses.push(course);
+        }
+    });
+
+    // 3. Render เฉพาะวิชาที่ไม่ซ้ำ
+    uniqueCourses.forEach(course => {
         const tr = document.createElement('tr');
         tr.className = "bg-white border-b hover:bg-gray-50 transition-colors";
 
         const midVal = course.midExam || '';
         const finalVal = course.finalExam || '';
 
+        // หมายเหตุ: ใช้ updateExamDataByCode แทน updateExamData เพื่ออัปเดตทุกตัวที่มี Code นี้
         tr.innerHTML = `
             <td class="px-4 py-3 font-bold text-gray-800">${course.code}</td>
             <td class="px-4 py-3">
@@ -374,7 +387,7 @@ function renderExamSchedule(courses) {
                     value="${midVal}" 
                     placeholder="วว/ดด/ปป เวลา..."
                     class="w-full bg-white border border-orange-200 text-gray-700 text-sm rounded px-2 py-1 focus:ring-1 focus:ring-orange-400 focus:border-orange-400 outline-none placeholder-gray-300"
-                    onchange="updateExamData('${course.id}', 'midExam', this.value)"
+                    onchange="updateExamDataByCode('${course.code}', 'midExam', this.value)"
                 >
             </td>
             <td class="px-4 py-3 bg-blue-50/30">
@@ -382,7 +395,7 @@ function renderExamSchedule(courses) {
                     value="${finalVal}" 
                     placeholder="วว/ดด/ปป เวลา..."
                     class="w-full bg-white border border-blue-200 text-gray-700 text-sm rounded px-2 py-1 focus:ring-1 focus:ring-blue-400 focus:border-blue-400 outline-none placeholder-gray-300"
-                    onchange="updateExamData('${course.id}', 'finalExam', this.value)"
+                    onchange="updateExamDataByCode('${course.code}', 'finalExam', this.value)"
                 >
             </td>
         `;
@@ -390,14 +403,21 @@ function renderExamSchedule(courses) {
     });
 }
 
-// ฟังก์ชันสำหรับอัปเดตข้อมูลสอบลง Storage เมื่อพิมพ์เสร็จ
-window.updateExamData = function (id, field, value) {
+// ฟังก์ชันใหม่: อัปเดตข้อมูลวันสอบโดยอ้างอิง "รหัสวิชา" (Code)
+// เพื่อให้วิชาเดียวกัน (เช่น Lecture/Lab) ได้วันสอบเดียวกันทั้งหมด
+window.updateExamDataByCode = function (code, field, value) {
     let courses = getCourses();
-    const courseIndex = courses.findIndex(c => c.id === id);
+    let isUpdated = false;
 
-    if (courseIndex !== -1) {
-        courses[courseIndex][field] = value;
-        // บันทึกเงียบๆ โดยไม่ต้อง re-render ทั้งหมดเดี๋ยว Input หลุด Focus
+    courses.forEach(c => {
+        if (c.code === code) {
+            c[field] = value;
+            isUpdated = true;
+        }
+    });
+
+    if (isUpdated) {
+        // บันทึกเงียบๆ โดยไม่ต้อง re-render เพื่อไม่ให้ Input หลุด Focus
         const key = currentPlan === 'A' ? 'my_courses_compact' : 'my_courses_plan_b';
         localStorage.setItem(key, JSON.stringify(courses));
     }
@@ -406,6 +426,13 @@ window.updateExamData = function (id, field, value) {
 // --- Credit Calculation Helper ---
 function updateTotalCredits(courses) {
     let total = 0;
+    // ต้องคำนวณจาก Unique Course เช่นกัน ไม่งั้นหน่วยกิตจะเบิ้ลถ้าลงวิชาเดิมหลายคาบ
+    // แต่ปกติระบบนี้ 1 Drag = 1 Course Object ที่มี credit
+    // ถ้าผู้ใช้ลากวิชาเดิมลงมา 2 ครั้ง (เช่น เช้า/บ่าย) หน่วยกิตจะเบิ้ลตาม Logic เดิม
+    // ซึ่งถูกต้องแล้วถ้ามองว่าเป็นคนละ Section หรือคนละวิชา 
+    // *แต่* ถ้าเป็น Lecture+Lab ปกติมันแยก code กัน หรือ code เดียวกันแต่หน่วยกิตรวม
+    // ในที่นี้ขอคง Logic เดิมไว้ก่อน (นับตามจำนวนกล่องที่วาง)
+    
     courses.forEach(c => {
         const credit = parseInt(c.credits);
         if (!isNaN(credit)) {
