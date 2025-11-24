@@ -42,10 +42,18 @@
                 </button>
             </div>
 
-            <!-- ปุ่มเดิม -->
+            <!-- NEW: Toggle Exam Button -->
+            <button id="btn-toggle-exam" onclick="toggleExamSchedule()" 
+                class="px-4 py-1.5 rounded-md text-xs font-bold text-gray-500 bg-slate-100 border border-slate-200 hover:bg-white transition-all flex items-center gap-1">
+                <span>📅</span> Show Exams
+            </button>
+
+            <div class="h-6 w-px bg-gray-300 mx-1"></div>
+
+            <!-- ปุ่มเดิม (ซ่อนไว้ตามคำขอ: display:none) -->
             <button onclick="downloadScheduleImage()" class="btn-action"
-                style="background-color:#3b82f6; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px; display:flex; align-items:center; gap:5px;">
-                <span>📷</span> Download Image
+                style="background-color:#3b82f6; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px; display:none; align-items:center; gap:5px;">
+                <span>📷</span> Download
             </button>
 
             <button onclick="openSearchModal()" class="btn-action"
@@ -55,7 +63,7 @@
 
             <button onclick="openAddCustomModal()" class="btn-action btn-success"
                 style="background-color:#10b981; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px;">
-                <span>+</span> วิชารายวิชา
+                <span>+</span> เพิ่มวิชา
             </button>
             <button onclick="clearAllCourses()" class="btn-action btn-danger"
                 style="background-color:#ef4444; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px;">
@@ -280,24 +288,28 @@
                     <div>
                         <label class="block text-xs font-bold text-gray-500 mb-1">ปีการศึกษา</label>
                         <select id="reg-search-year" class="w-full p-2 border rounded outline-none bg-gray-50">
-                            <option value="2568">2568</option>
-                            <option value="2567" selected>2567</option>
+                            <option value="2568">2567</option>
+                            <option value="2567"selected >2568</option>
+                            <option value="2567">2569</option>
+                            <option value="2567">2570</option>
+                            <option value="2567">2571</option>
+                            <option value="2567">2572</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-500 mb-1">เทอม</label>
                         <select id="reg-search-sem" class="w-full p-2 border rounded outline-none bg-gray-50">
-                            <option value="1">1 (ต้น)</option>
-                            <option value="2" selected>2 (ปลาย)</option>
-                            <option value="3">3 (ร้อน)</option>
+                            <option value="1">1 ( Midterm )</option>
+                            <option value="2">2 ( Final )</option>
+                            <option value="3">3 ( Summer )</option>
                         </select>
                     </div>
                 </div>
             </div>
 
             <div class="modal-actions">
-                <button onclick="closeModal('search-modal')" class="btn-cancel">ปิด</button>
-                <button onclick="performRegSearch()" class="btn-confirm" style="background-color: #F26522;">ค้นหาทันที
+                <button onclick="closeModal('search-modal')" class="btn-cancel">Close</button>
+                <button onclick="performRegSearch()" class="btn-confirm" style="background-color: #F26522;">Search
                     ➜</button>
             </div>
         </div>

@@ -1,11 +1,33 @@
 let pendingCourseDrop = null;
 let currentCurriculum = "CS";
 let currentPlan = 'A'; // สถานะ Plan ปัจจุบัน (Default = A)
+let isExamShow = false; // สถานะการแสดงตารางสอบ (Default = Hide)
 
 window.onload = function () {
     renderSidebar();
     loadCourses();
+    updateExamToggleButton(); // อัปเดตสีปุ่มตอนเริ่ม
 };
+
+// --- New: Toggle Exam Logic ---
+window.toggleExamSchedule = function () {
+    isExamShow = !isExamShow; // สลับสถานะ
+    updateExamToggleButton();
+    loadCourses(); // โหลดใหม่เพื่อให้ renderExamSchedule ทำงานตามสถานะใหม่
+}
+
+function updateExamToggleButton() {
+    const btn = document.getElementById('btn-toggle-exam');
+    if (isExamShow) {
+        // Active Style (เหมือนกดแล้ว)
+        btn.className = "px-4 py-1.5 rounded-md text-xs font-bold shadow bg-blue-600 text-white transition-all flex items-center gap-1";
+        btn.innerHTML = "<span>📅</span> Hide Exams";
+    } else {
+        // Inactive Style
+        btn.className = "px-4 py-1.5 rounded-md text-xs font-bold text-gray-500 bg-slate-100 border border-slate-200 hover:bg-white transition-all flex items-center gap-1";
+        btn.innerHTML = "<span>📅</span> Show Exams";
+    }
+}
 
 // --- New: Plan Switching Logic ---
 window.switchPlan = function (plan) {
@@ -322,7 +344,8 @@ function renderExamSchedule(courses) {
     const section = document.getElementById('exam-schedule-section');
     const tbody = document.getElementById('exam-table-body');
 
-    if (!courses || courses.length === 0) {
+    // ถ้าไม่มีวิชา หรือ สถานะซ่อนอยู่ ให้ปิดการแสดงผล
+    if (!courses || courses.length === 0 || !isExamShow) {
         section.classList.add('hidden');
         return;
     }
@@ -517,51 +540,100 @@ window.performRegSearch = function () {
     closeModal('search-modal');
 }
 
-// --- Download Image Logic ---
+// --- Download Image Logic (Fixed WYSIWYG) ---
 window.downloadScheduleImage = function () {
-    // 1. เลือกพื้นที่ที่จะถ่ายรูป (ตอนนี้เอาทั้ง main area เพื่อให้ติด Exam Schedule ด้วย)
-    const captureElement = document.getElementById('capture-area');
+    const captureElement = document.querySelector('.table-wrapper');
     if (!captureElement) {
         alert('ไม่พบพื้นที่ตารางเรียน');
         return;
     }
 
-    // 2. ซ่อนปุ่มลบ (x) ชั่วคราว
     const deleteBtns = document.querySelectorAll('.delete-btn');
     deleteBtns.forEach(btn => btn.style.display = 'none');
 
-    // 3. ปรับสไตล์ชั่วคราวเพื่อให้ภาพสวย (เอา scrollbar ออกตอนถ่าย)
     const originalOverflow = captureElement.style.overflow;
-    captureElement.style.overflow = 'visible'; // ขยายความสูงเต็มเนื้อหา
+    captureElement.style.overflow = 'visible';
 
-    html2canvas(captureElement, {
-        scale: 2,
-        backgroundColor: '#ffffff',
-        // useCORS: true, // เผื่อมีรูปข้ามโดเมน
-        onclone: (clonedDoc) => {
-            const clonedMain = clonedDoc.getElementById('capture-area');
-            if (clonedMain) {
-                clonedMain.style.height = 'auto'; // บังคับให้สูงเท่าเนื้อหา
-                clonedMain.style.padding = '20px';
+    document.fonts.ready.then(() => {
+        html2canvas(captureElement, {
+            scale: 2,
+            backgroundColor: '#ffffff',
+            useCORS: true,
+            logging: false,
+            onclone: (clonedDoc) => {
+                const clonedWrapper = clonedDoc.querySelector('.table-wrapper');
+                
+                // 1. เข้าถึง element จริงในหน้าเว็บเพื่อดึงค่าสีที่ถูกต้อง
+                const originalWrapper = document.querySelector('.table-wrapper');
 
-                // แก้ Header ลอย
-                const headers = clonedMain.querySelectorAll('th');
-                headers.forEach(th => th.style.position = 'static');
+                if (clonedWrapper && originalWrapper) {
+                    clonedWrapper.style.height = 'auto';
+                    clonedWrapper.style.padding = '0';
+                    clonedWrapper.style.margin = '0';
+                    clonedWrapper.style.overflow = 'visible';
+
+                    // ฟังก์ชันช่วย Copy Style จาก Original -> Clone
+                    const copyComputedStyles = (selector, props) => {
+                        const originalEls = originalWrapper.querySelectorAll(selector);
+                        const clonedEls = clonedWrapper.querySelectorAll(selector);
+                        
+                        originalEls.forEach((el, index) => {
+                            if (clonedEls[index]) {
+                                const computed = window.getComputedStyle(el);
+                                props.forEach(prop => {
+                                    clonedEls[index].style[prop] = computed[prop];
+                                });
+                            }
+                        });
+                    };
+
+                    // Copy สีพื้นหลังและตัวอักษรของ Header (สำคัญมากสำหรับธีมมืด)
+                    copyComputedStyles('th', ['backgroundColor', 'color', 'border']);
+                    
+                    // Copy สีของคอลัมน์วัน
+                    copyComputedStyles('.day-col', ['backgroundColor', 'color', 'border']);
+                    
+                    // Copy สีของ Slot วิชา
+                    copyComputedStyles('.class-slot', ['backgroundColor', 'borderColor']);
+                    copyComputedStyles('td', ['border']); // Copy เส้นขอบตารางทั้งหมด
+
+                    // บังคับความกว้างและฟอนต์
+                    const table = clonedWrapper.querySelector('table');
+                    if (table) {
+                        table.style.width = '1500px';
+                        table.style.minWidth = '1500px';
+                        table.style.tableLayout = 'fixed';
+                    }
+                    
+                    clonedWrapper.style.fontFamily = "'Sarabun', sans-serif";
+                    
+                    // แก้ตำแหน่ง Header
+                    const headers = clonedWrapper.querySelectorAll('th');
+                    headers.forEach(th => {
+                        th.style.position = 'static';
+                        th.style.fontFamily = "'Sarabun', sans-serif";
+                    });
+
+                    // แก้ฟอนต์เนื้อหา
+                    const cells = clonedWrapper.querySelectorAll('td, div, span');
+                    cells.forEach(el => {
+                        el.style.fontFamily = "'Sarabun', sans-serif";
+                    });
+                }
             }
-        }
-    }).then(canvas => {
-        const link = document.createElement('a');
-        link.download = `my-schedule-nu-${currentPlan}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `my-class-schedule-${currentPlan}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
 
-        // คืนค่าเดิม
-        deleteBtns.forEach(btn => btn.style.display = '');
-        captureElement.style.overflow = originalOverflow;
-    }).catch(err => {
-        console.error("Capture Failed:", err);
-        alert("เกิดข้อผิดพลาดในการบันทึกรูป");
-        deleteBtns.forEach(btn => btn.style.display = '');
-        captureElement.style.overflow = originalOverflow;
+            deleteBtns.forEach(btn => btn.style.display = '');
+            captureElement.style.overflow = originalOverflow;
+        }).catch(err => {
+            console.error("Capture Failed:", err);
+            alert("เกิดข้อผิดพลาดในการบันทึกรูป");
+            deleteBtns.forEach(btn => btn.style.display = '');
+            captureElement.style.overflow = originalOverflow;
+        });
     });
 }

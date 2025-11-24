@@ -7,7 +7,7 @@ const freeElectivesObject = {
         {
             name: "รายวิชาทั้งหมด (เครื่องหมาย * คือจำกัดคณะ/สาขา)",
             courses: [
-               // --- คณะเกษตรศาสตร์ฯ ---
+                // --- คณะเกษตรศาสตร์ฯ ---
                 { code: "123335-1", nameEn: "*Aquaponics Technology", nameTh: "*เทคโนโลยีอควาโปนิกส์ (เกษตรฯ)", credits: "3" },
                 { code: "107335-2", nameEn: "Rice Production Technology", nameTh: "เทคโนโลยีการผลิตข้าว", credits: "3" },
                 { code: "107336-2", nameEn: "Field Crop Breeding", nameTh: "เทคนิคการปรับปรุงพันธุ์พืชไร่", credits: "3" },
@@ -85,7 +85,7 @@ const freeElectivesObject = {
 // ---------------------------------------------------------
 const allCurricula = {
     // 1. หมวด FREE (วิชาเลือกเสรี) - แสดงเป็นหมวดหลัก
-    "FREE": [ freeElectivesObject ], 
+    "FREE": [freeElectivesObject],
 
     // 2. หมวด CS
     "CS": [
