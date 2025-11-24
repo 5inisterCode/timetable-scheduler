@@ -29,32 +29,36 @@
             </span>
         </div>
         <div class="header-actions" style="display:flex; align-items:center; gap:10px;">
-            
+
             <!-- Plan Switcher -->
             <div class="flex bg-slate-200 p-1 rounded-lg mr-2">
-                <button id="btn-plan-A" onclick="switchPlan('A')" 
+                <button id="btn-plan-A" onclick="switchPlan('A')"
                     class="px-4 py-1.5 rounded-md text-xs font-bold shadow bg-white text-blue-600 transition-all">
                     Plan A
                 </button>
-                <button id="btn-plan-B" onclick="switchPlan('B')" 
+                <button id="btn-plan-B" onclick="switchPlan('B')"
                     class="px-4 py-1.5 rounded-md text-xs font-bold text-gray-500 hover:bg-white/50 transition-all">
                     Plan B
                 </button>
             </div>
 
             <!-- ปุ่มเดิม -->
-            <button onclick="downloadScheduleImage()" class="btn-action" style="background-color:#3b82f6; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px; display:flex; align-items:center; gap:5px;">
+            <button onclick="downloadScheduleImage()" class="btn-action"
+                style="background-color:#3b82f6; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px; display:flex; align-items:center; gap:5px;">
                 <span>📷</span> Download Image
             </button>
 
-            <button onclick="openSearchModal()" class="btn-action" style="background-color:#F26522; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px; display:flex; align-items:center; gap:5px;">
+            <button onclick="openSearchModal()" class="btn-action"
+                style="background-color:#F26522; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px; display:flex; align-items:center; gap:5px;">
                 <span>🔍</span> Reg Search
             </button>
-            
-            <button onclick="openAddCustomModal()" class="btn-action btn-success" style="background-color:#10b981; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px;">
+
+            <button onclick="openAddCustomModal()" class="btn-action btn-success"
+                style="background-color:#10b981; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px;">
                 <span>+</span> วิชารายวิชา
             </button>
-            <button onclick="clearAllCourses()" class="btn-action btn-danger" style="background-color:#ef4444; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px;">
+            <button onclick="clearAllCourses()" class="btn-action btn-danger"
+                style="background-color:#ef4444; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px;">
                 <span>🗑️</span> ล้าง
             </button>
         </div>
@@ -87,8 +91,8 @@
         </aside>
 
         <!-- ตารางขวา -->
-        <main class="timetable-area custom-scrollbar" id="capture-area" style="overflow-y: auto;"> 
-            
+        <main class="timetable-area custom-scrollbar" id="capture-area" style="overflow-y: auto;">
+
             <!-- ตารางเรียน -->
             <div class="table-wrapper custom-scrollbar">
                 <table>
@@ -119,7 +123,8 @@
             <div id="exam-schedule-section" class="mt-8 pt-6 border-t border-dashed border-gray-300 hidden">
                 <h3 class="text-lg font-bold text-gray-700 mb-4 flex items-center gap-2">
                     📅 สรุปตารางสอบ (Exam Schedule)
-                    <span class="text-[10px] font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded-full border">แก้ไขวันที่ได้</span>
+                    <span
+                        class="text-[10px] font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded-full border">แก้ไขวันที่ได้</span>
                 </h3>
                 <div class="overflow-hidden rounded-lg border border-gray-200 shadow-sm">
                     <table class="w-full text-sm text-left text-gray-600">
@@ -128,11 +133,13 @@
                                 <th scope="col" class="px-4 py-3 w-24">รหัสวิชา</th>
                                 <th scope="col" class="px-4 py-3">ชื่อวิชา</th>
                                 <!-- ปรับ w-48 เป็น w-80 (กว้างขึ้น) -->
-                                <th scope="col" class="px-4 py-3 w-80 bg-orange-50 text-orange-800 border-l border-orange-100">
+                                <th scope="col"
+                                    class="px-4 py-3 w-80 bg-orange-50 text-orange-800 border-l border-orange-100">
                                     สอบกลางภาค (Midterm)
                                 </th>
                                 <!-- ปรับ w-48 เป็น w-80 (กว้างขึ้น) -->
-                                <th scope="col" class="px-4 py-3 w-80 bg-blue-50 text-blue-800 border-l border-blue-100">
+                                <th scope="col"
+                                    class="px-4 py-3 w-80 bg-blue-50 text-blue-800 border-l border-blue-100">
                                     สอบปลายภาค (Final)
                                 </th>
                             </tr>
@@ -250,21 +257,23 @@
     </div>
 
     <!-- Modal 3: ค้นหาใน Reg -->
-    <div id="search-modal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center p-4 modal-backdrop">
+    <div id="search-modal"
+        class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center p-4 modal-backdrop">
         <div class="modal-content" style="width: 400px;">
-            <div style="background: linear-gradient(135deg, #F26522 0%, #d3541c 100%); padding: 20px; text-align: center; color: white;">
+            <div
+                style="background: linear-gradient(135deg, #F26522 0%, #d3541c 100%); padding: 20px; text-align: center; color: white;">
                 <div style="font-size: 40px; margin-bottom: 10px;">🔍</div>
-                <h3 style="background:none; border:none; color:white; padding:0; margin-bottom:5px;">เช็คตารางจาก Reg</h3>
+                <h3 style="background:none; border:none; color:white; padding:0; margin-bottom:5px;">เช็คตารางจาก Reg
+                </h3>
                 <p style="font-size: 12px; opacity: 0.9;">ข้อมูลห้องเรียนและวันสอบ (Real-time)</p>
             </div>
 
             <div class="p-5 space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-gray-500 mb-1">คำค้นหา (รหัสวิชา / ชื่อวิชา)</label>
-                    <input type="text" id="reg-search-query" 
-                        class="w-full p-3 border-2 border-orange-100 rounded-lg outline-none focus:border-orange-500 text-lg" 
-                        placeholder="เช่น 204101"
-                        onkeypress="handleSearchEnter(event)">
+                    <input type="text" id="reg-search-query"
+                        class="w-full p-3 border-2 border-orange-100 rounded-lg outline-none focus:border-orange-500 text-lg"
+                        placeholder="เช่น 204101" onkeypress="handleSearchEnter(event)">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
@@ -288,7 +297,8 @@
 
             <div class="modal-actions">
                 <button onclick="closeModal('search-modal')" class="btn-cancel">ปิด</button>
-                <button onclick="performRegSearch()" class="btn-confirm" style="background-color: #F26522;">ค้นหาทันที ➜</button>
+                <button onclick="performRegSearch()" class="btn-confirm" style="background-color: #F26522;">ค้นหาทันที
+                    ➜</button>
             </div>
         </div>
     </div>

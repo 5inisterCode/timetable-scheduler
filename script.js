@@ -163,13 +163,13 @@ function handleDrop(e) {
         </div>
     `;
 
-    let defaultDuration = 3;
+    let defaultDuration = 2;
     if (data.credits) {
         const creditNum = parseInt(data.credits);
         if (!isNaN(creditNum)) defaultDuration = creditNum;
     }
 
-    document.getElementById('confirm-duration').value = "3";
+    document.getElementById('confirm-duration').value = "2";
     document.getElementById('confirm-color').value = "#dae8fc";
 
     openModal('confirm-modal');
@@ -231,7 +231,7 @@ window.openAddCustomModal = function () {
     document.getElementById('custom-name').value = '';
     document.getElementById('custom-day').value = 'Monday';
     document.getElementById('custom-start').value = '8';
-    document.getElementById('custom-duration').value = '1';
+    document.getElementById('custom-duration').value = '2';
     document.getElementById('custom-color').value = '#d5e8d4';
     openModal('add-custom-modal');
 }
